@@ -8,6 +8,8 @@
 
 #include "pid.h"
 #include "file.h"
+#include "pqxx_conn.h"
+#include "log.h"
 
 #define CURRENT_PATH std::filesystem::current_path().generic_string()
 #define TXT_PATH "files/"
@@ -18,12 +20,14 @@ int main() {
     std::filesystem::current_path(CURRENT_PATH + "/../" + TXT_PATH);
     std::string token = get_token();
     __save_pid();
-    
+    db_api::PsqlConnector conn("dialog2023", "gleb", "1957");
+
     std::vector<int> admin_list = get_admin_list();
 
-    printf("Token: %s\n", token.c_str());
+    Log({std::string{"Token for bot - "}, token}, "");
 
     Bot bot(token);
+    
     bot.getEvents().onCommand("start", [&bot](Message::Ptr message) {
         bot.getApi().sendMessage(message->chat->id, "Hi!");
     });
