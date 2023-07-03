@@ -15,3 +15,12 @@ cd ..
 rm -rf tgbot-cpp
 
 
+echo ------- INSTALL PQXX ------- 
+
+git clone https://github.com/jtv/libpqxx.git
+cd libpqxx
+./configure
+make -j4
+sudo make install
+cd ..
+rm -rf libpqxx
