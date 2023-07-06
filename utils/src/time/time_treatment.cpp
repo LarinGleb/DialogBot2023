@@ -4,7 +4,7 @@
 
 #include "time_treatment.h"
 
-std::string CurrentTime(const char* format) {
+std::string CurrentDataTime(const char* format) {
     std::time_t now = std::time(nullptr);
     std::tm* localTime = std::localtime(&now);
     char buffer[100];
