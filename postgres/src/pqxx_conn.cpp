@@ -8,7 +8,7 @@
 
 namespace db_api { 
     void PsqlConnector::SetupConnection() {
-        Log("Create a connection");
+        Log("Create a connection", "Start");
         conn = new pqxx::connection(
             " user=" + m_user +
             " password=" + m_password +
@@ -19,7 +19,7 @@ namespace db_api {
     }
 
     void PsqlConnector::StopConnection() {
-        Log("Соединение с базой данных закрыто");
+        Log("Соединение с базой данных закрыто", "Stop");
         delete conn;
     }
 
@@ -29,6 +29,7 @@ namespace db_api {
         pqxx::result result = txn.exec(request);
         txn.commit();
 
+        Log("Get request " + std::string(request), "Database");
         return result;
     }
 }

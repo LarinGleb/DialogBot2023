@@ -4,6 +4,8 @@
 #include <iostream>
 #include <pqxx/pqxx>
 
+typedef long long ll;
+
 namespace db_api { 
     
 class PsqlConnector {
@@ -29,13 +31,19 @@ class PsqlConnector {
 
         ~PsqlConnector() {
             StopConnection();
-            
         }
         
         void SetupConnection();
         void StopConnection();
 
         pqxx::result ExecuteRequest(const char* request);
+
+        std::vector<std::string> NameEvents(const ll id_in_db);
+
+        int IdByName(const std::string name);
+        
+        void AddEvent(const std::string name, const std::string desc, const std::string date);
+        void AddReview(const std::string event_id, const ll user_id, const std::string date, const int mark, const std::string change, const std::string good_things, const bool next_year);
 
         pqxx::connection* conn;
     private:
