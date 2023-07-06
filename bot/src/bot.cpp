@@ -6,26 +6,25 @@
 
 #include <tgbot/tgbot.h>
 
+#include "bot.h"
+#include "pqxx_conn.h"
 #include "pid.h"
 #include "file.h"
-#include "pqxx_conn.h"
 #include "log.h"
+#include "crypt_id.h"
 
-#define CURRENT_PATH std::filesystem::current_path().generic_string()
-#define TXT_PATH "files/"
 using namespace std;
 using namespace TgBot;
 
 int main() {
-    std::filesystem::current_path(CURRENT_PATH + "/../" + TXT_PATH);
+    std::filesystem::current_path(MAIN_PATH + TXT_PATH);
     std::string token = get_token();
     __save_pid();
     db_api::PsqlConnector conn("dialog2023", "gleb", "1957");
 
     std::vector<int> admin_list = get_admin_list();
 
-    Log({std::string{"Token for bot - "}, token}, "");
-
+    Log({std::string{"Token for bot - "}, token}, "Start", "");
     Bot bot(token);
     
     bot.getEvents().onCommand("start", [&bot](Message::Ptr message) {
