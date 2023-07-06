@@ -17,24 +17,28 @@ if (CURL_FOUND)
     add_definitions(-DHAVE_CURL)
 endif()
 
-
-
 include_directories(utils/inc/files)
 include_directories(utils/inc/time)
+include_directories(utils/inc/telegram)
 include_directories(utils/inc)
 include_directories(bot/inc)
 include_directories(postgres/inc)
+include_directories(user/inc)
+
 
 add_subdirectory(utils/src)
 add_subdirectory(postgres/src)
+add_subdirectory(user/src)
 
 add_executable(dialog_bot_2023 bot/src/bot.cpp)
 
 add_dependencies(dialog_bot_2023 utils)
 add_dependencies(dialog_bot_2023 postgressql)
+add_dependencies(dialog_bot_2023 users)
 
 target_link_libraries(dialog_bot_2023 utils)
 target_link_libraries(dialog_bot_2023 postgressql)
+target_link_libraries(dialog_bot_2023 users)
 
 target_link_libraries(dialog_bot_2023 /usr/local/lib/libTgBot.a ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES})
 target_link_libraries(dialog_bot_2023 -lpqxx -lpq)
