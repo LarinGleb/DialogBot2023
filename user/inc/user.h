@@ -2,51 +2,98 @@
 #define __USER_CLASS_H__
 
 #include <iostream>
+#include <vector>
 
-#include "graph.h"
 #include "crypt_id.h"
+#include "graph.h"
 #include "pqxx_conn.h"
 
-#define START_NODE_ID "CreateReview"
 #define CHOOSE_NODE_ID "ChooseEvent"
+#define START_NODE_ID "Start"
 
-#define NAMES_NODE_REVIEW (std::string[4]){"_mark", "_change", "_good", "_nextyear"}
+#define ADD_NAME_EVENT_NODE_ID "EventName"
+#define ADD_DESC_EVENT_NODE_ID "EventDesc"
+#define ADD_DATE_EVENT_NODE_ID "EventDate"
 
-typedef long long ll;
+#define NAMES_NODE_REVIEW                        \
+    (std::string[4])                             \
+    {                                            \
+        "_mark", "_change", "_good", "_nextyear" \
+    }
+
 
 class User {
-    public:
-        User() = delete;
-        User(const ll telegram_id) {
-            m_id = crypt_id(telegram_id);
+public:
+    User() = default;
+    User(const int64_t cr_telegram_id, const db_api::PsqlConnector conn, const bool admin) { 
+        m_id = cr_telegram_id;
+        m_tree_states = Graph();
+        GenerateTreeStates(conn, admin); 
         }
-        void NextState();
-        bool ValidState(const std::string possible_state);
 
-        void DeleteEventNode(const std::string nameEvent);
-        void GenerateTreeStates(db_api::PsqlConnector conn, bool admin);
-        ~User() = default;
-        
-        void DropUser();
+    void NextState(const std::string state = "");
+    bool ValidState(const std::string possible_state);
 
-        void AddReview(db_api::PsqlConnector conn);
+    void DeleteEventNode(const std::string nameEvent);
+    void GenerateTreeStates(db_api::PsqlConnector conn, const bool admin);
 
-    private:
-        ll m_id = -1;
-        
-        int m_mark = -1;
-        std::string m_good = std::string("");
-        std::string m_change = std::string("");
-        bool m_next_year = false;
+    void DeleteUser() {
+        m_input.clear();
+        m_events.clear();
 
-        std::string m_name_chose_event = std::string("");
+    }
+    
+    ~User() = default;
 
-        Graph m_tree_states;
-        std::string m_id_state = std::string("");
+    void AddReview(db_api::PsqlConnector conn);
+    void AddEvent(db_api::PsqlConnector conn);
+
+    // Geters
+
+    std::string GetState() {
+        return m_id_state;
+    }   
+
+    std::string GetEvent() {
+        return m_name_chose_event;
+    }
+
+    std::vector<std::string> GetPossibleEvents() {
+        return m_events;
+    }
+
+    // sETERS
+
+    void SetCurrentWorkingEvent(std::string event) {
+        m_name_chose_event = event;
+    }
+
+    void AddInput(std::string input) {
+        m_input.push_back(input);
+    }
+
+    void SetPossibleEvents(db_api::PsqlConnector conn) {
+        m_events.clear();
+        for (std::string event: conn.NameEvents(m_id)) {
+            m_events.push_back(event);
+        }
+    }
+
+private:
+    int64_t m_id = -1;
+
+    std::vector<std::string> m_input;
+    std::vector<std::string> m_events;
+
+    std::string m_name_chose_event = std::string("");
+
+    Graph m_tree_states;
+    std::string m_id_state = std::string("");
+
+
 };
 
-
-/* There are six nodes for basic user 
+/* There are six nodes for basic user
 
 1. NameEvent + _mark
 2. NameEvent + _change

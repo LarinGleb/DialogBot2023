@@ -7,21 +7,27 @@
 #include "nodes.h"
 
 class Graph {
+public:
+    Graph() = default;
+    void DeleteNode(const std::string id);
+    void DeleteNodeFromNodeAfter(__node_s& node, const std::string id);
+    void AddNode(struct __node_s* node);
+    void PrintIdsRecursive(const std::vector<__node_s*> nodes, std::string indent);
 
-    public:
-        void DeleteNode(const std::string id);
-        void DeleteNodeFromNodeAfter(__node_s& node, const std::string id);
-        void AddNode(const struct __node_s* node, const std::string node_before_id);
-        
-        __node_s FindNode(const std::string id);
-        ~Graph() {
-            if (!nodes.empty()) {
-                DeleteNode(nodes.front().id);
-            }
-            nodes.clear();
-        }
-    private:
-        std::vector<__node_s> nodes = std::vector<__node_s>();
+
+    std::vector<__node_s*>* NodesPrt() {
+        return &m_nodes;
+    }
+    __node_s* FindNode(const std::string id);
+
+    ~Graph() {
+        m_nodes.clear();   
+    }
+private:
+    std::vector<__node_s*> m_nodes;
+
+    __node_s m_root_node;
+
 };
 
 #endif
