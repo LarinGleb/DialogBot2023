@@ -3,9 +3,7 @@
 
 #define MASK 7110110812197
 
-typedef long long ll;
-
-ll crypt_id(const ll id_telegram);
-ll decrypt_id(const ll crypted_telegram);
+int64_t crypt_id(const int64_t id_telegram);
+int64_t decrypt_id(const int64_t crypted_telegram);
 
 #endif

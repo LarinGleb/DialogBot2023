@@ -2,10 +2,12 @@
 
 #include "crypt_id.h"
 
-ll crypt_id(const ll id_telegram) {
+int64_t crypt_id(const int64_t id_telegram)
+{
     return id_telegram ^ MASK;
 }
 
-ll decrypt_id(const ll crypted_telegram) {
+int64_t decrypt_id(const int64_t crypted_telegram)
+{
     return crypted_telegram ^ MASK;
 }

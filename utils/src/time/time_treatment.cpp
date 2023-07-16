@@ -1,10 +1,11 @@
-#include <iostream>
 #include <ctime>
 #include <iomanip>
+#include <iostream>
 
 #include "time_treatment.h"
 
-std::string CurrentDataTime(const char* format) {
+std::string CurrentDataTime(const char* format)
+{
     std::time_t now = std::time(nullptr);
     std::tm* localTime = std::localtime(&now);
     char buffer[100];

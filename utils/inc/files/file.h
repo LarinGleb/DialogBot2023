@@ -12,10 +12,9 @@
 int __save_to_file(const std::string filename, const std::string content);
 std::vector<std::string> __read_from_file(const std::string name);
 
-// function need to bot directly 
+// function need to bot directly
 
-std::vector<int> get_admin_list();
+std::vector<int64_t> get_admin_list();
 std::string get_token();
-
 
 #endif

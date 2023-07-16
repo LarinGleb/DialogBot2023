@@ -1,15 +1,15 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include "file.h"
 #include "pid.h"
 
-std::vector<int> get_admin_list() {
-    
+std::vector<int64_t> get_admin_list()
+{
     std::vector<std::string> list_from_file = __read_from_file(ADMINS_FILE_NAME);
     std::string line;
 
@@ -18,15 +18,15 @@ std::vector<int> get_admin_list() {
         return {};
     }
 
-    std::vector<int> admin_list;;
-    
-    for (size_t i = 0; i < list_from_file.size(); i ++) {
+    std::vector<int64_t> admin_list;
+
+    for (size_t i = 0; i < list_from_file.size(); i++) {
         admin_list.push_back(std::stoi(list_from_file.at(i)));
     }
     return admin_list;
 }
 
-std::string get_token() {
+std::string get_token()
+{
     return __read_from_file(TOKEN_FILE_NAME)[0];
 }
-
