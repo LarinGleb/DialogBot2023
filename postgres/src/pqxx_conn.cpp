@@ -3,33 +3,25 @@
 
 #include "pqxx_conn.h"
 
-#include "time_treatment.h"
 #include "log.h"
+#include "time_treatment.h"
 
-namespace db_api { 
-    void PsqlConnector::SetupConnection() {
-        Log("Create a connection", "Start");
-        conn = new pqxx::connection(
-            " user=" + m_user +
-            " password=" + m_password +
-            " hostaddr=" + m_host +
-            " dbname=" + m_database +
-            " port=" + m_port
-        );
-    }
+namespace db_api {
 
-    void PsqlConnector::StopConnection() {
-        Log("Соединение с базой данных закрыто", "Stop");
-        delete conn;
-    }
-
-    pqxx::result PsqlConnector::ExecuteRequest(const char* request) {
-        pqxx::work txn(*conn); // transaction
-
-        pqxx::result result = txn.exec(request);
-        txn.commit();
-
-        Log("Get request " + std::string(request), "Database");
-        return result;
-    }
+void PsqlConnector::StopConnection()
+{
+    Log("Соединение с базой данных закрыто.", "Stop");
+    conn->close();
 }
+
+pqxx::result PsqlConnector::ExecuteRequest(const char* request)
+{
+    pqxx::work txn(*conn); // transaction
+
+    pqxx::result result = txn.exec(request);
+    txn.commit();
+
+    Log("Get request " + std::string(request), "Database");
+    return result;
+}
+} // namespace db_api
