@@ -9,5 +9,6 @@
 
 #define ADD_REVIEW_BUTTON_CALLBACK "AddReview"
 #define ADD_EVENT_BUTTON_CALLBACK "AddEvent"
-
+#define READ_RIVEW_BUTTON_CALLBACK "ReadReview"
+#define ALL_EVENT_CHOOSE "All"
 #endif

@@ -27,12 +27,12 @@ std::vector<TgBot::InlineKeyboardButton::Ptr> CreateLineButtons(
 }
 
 std::vector<TgBot::InlineKeyboardButton::Ptr> CreateLineButtons(
-    const std::vector<TgBot::InlineKeyboardButton::Ptr> buttons) {
+    const std::vector<TgBot::InlineKeyboardButton::Ptr> buttons)
+{
 
     std::vector<TgBot::InlineKeyboardButton::Ptr> linebuttons;
     for (const TgBot::InlineKeyboardButton::Ptr button : buttons) {
         linebuttons.push_back(button);
     }
     return linebuttons;
-    }
-
+}

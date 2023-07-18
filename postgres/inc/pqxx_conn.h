@@ -55,6 +55,10 @@ public:
         const std::string good_things,
         const std::string next_year);
 
+    std::vector<std::string> ReadReviews(const int event_id);
+
+    std::vector<std::string> GetAllEvents();
+    
     pqxx::connection* conn;
 
 private:

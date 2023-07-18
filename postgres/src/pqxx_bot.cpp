@@ -7,7 +7,6 @@
 #include "log.h"
 #include "pqxx_conn.h"
 
-
 namespace db_api {
 
 std::vector<std::string> PsqlConnector::NameEvents(const int64_t id_in_db)
@@ -31,7 +30,7 @@ void PsqlConnector::AddEvent(const std::string name,
     const std::string desc,
     const std::string date)
 {
-    std::string request = std::string("INSERT INTO events(name, description, date) VALUES(") + name + "," + desc + "," + date + std::string(");");
+    std::string request = std::string("INSERT INTO events(name, description, date) VALUES(") + name + "," + desc + "," + +"TO_DATE(" + date + std::string(",\'DD.MM.YYYY\'));");
     Log("Добавлено мероприятие " + name, "Admin");
     ExecuteRequest(request.c_str());
 }
@@ -54,11 +53,46 @@ void PsqlConnector::AddReview(const std::string event_id,
 
 int PsqlConnector::IdByName(const std::string name)
 {
-    std::string request = std::string("SELECT id FROM events WHERE name = " + name);
+    std::string request = std::string("SELECT id FROM events WHERE name = ") + "\'" + name  + "\'" + ';';
 
     pqxx::result id = ExecuteRequest(request.c_str());
 
     return std::get<0>(id[0].as<int>());
+}
+
+std::vector<std::string> PsqlConnector::ReadReviews(const int event_id) {
+    std::string request = std::string("SELECT * from reviews WHERE event_id = ") + std::to_string(event_id) + ';';
+
+    pqxx::result db_reviews = ExecuteRequest(request.c_str());
+
+    std::vector<std::string> reviews_str;
+    std::string review;
+
+    for (pqxx::result::const_iterator row = db_reviews.begin(); row != db_reviews.end(); ++row) {
+        for (auto field = row.begin(); field != row.end(); ++field) {
+            review += field->c_str();
+            if (std::next(field) != row.end()) {
+                review += ";";
+            }
+        }
+        reviews_str.push_back(review);
+        review = "";
+    }
+    return reviews_str;
+}
+
+std::vector<std::string> PsqlConnector::GetAllEvents() {
+    std::string request = std::string("SELECT name from events;");
+    
+    pqxx::result db_events = ExecuteRequest(request.c_str());
+
+    std::vector<std::string> events;
+    for (pqxx::result::const_iterator row = db_events.begin(); row != db_events.end(); ++row) {
+        events.push_back(row[0].as<std::string>());
+    }
+
+    return events;
+
 }
 } // namespace db_api
 /*
