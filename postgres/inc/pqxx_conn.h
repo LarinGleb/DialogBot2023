@@ -54,6 +54,8 @@ public:
         const std::string change,
         const std::string good_things,
         const std::string next_year);
+    
+    std::vector<int64_t> GetAllUsers();
 
     std::vector<std::string> ReadReviews(const int event_id);
 

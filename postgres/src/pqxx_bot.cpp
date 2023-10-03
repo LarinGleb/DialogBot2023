@@ -94,6 +94,19 @@ std::vector<std::string> PsqlConnector::GetAllEvents() {
     return events;
 
 }
+
+std::vector<int64_t> PsqlConnector::GetAllUsers() {
+    std::string request = std::string("SELECT DISTINCT user_id from reviews;");
+    pqxx::result db_ids = ExecuteRequest(request.c_str());
+
+    std::vector<int64_t> ids;
+    for (pqxx::result::const_iterator row = db_ids.begin(); row != db_ids.end(); ++row) {
+        ids.push_back(row[0].as<int64_t>());
+    }
+   return ids;
+
+
+}
 } // namespace db_api
 /*
 

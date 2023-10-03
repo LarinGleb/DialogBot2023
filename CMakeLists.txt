@@ -12,11 +12,17 @@ find_package(OpenSSL REQUIRED)
 find_package(Boost COMPONENTS system REQUIRED)
 find_package(CURL)
 
+option(TECH_ENABLE "set bot to tech work" 0)
+
+if (TECH_ENABLE) 
+	set(TECH_WORK "1")
+endif()
+configure_file(bot/inc/bot.h.in bot/inc/bot.h @ONLY)
+
 if (CURL_FOUND)
     include_directories(${CURL_INCLUDE_DIRS})
     add_definitions(-DHAVE_CURL)
 endif()
-
 include_directories(utils/inc/files)
 include_directories(utils/inc/time)
 include_directories(utils/inc/telegram)

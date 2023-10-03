@@ -12,6 +12,8 @@
 #define READ_RIVEW_BUTTON_CALLBACK "ReadReview"
 #define ALL_EVENT_CHOOSE "All"
 
-#define TECH_WORK 0
+#cmakedefine TECH_ENABLE
+#cmakedefine TECH_WORK "@TECH_WORK@"
 
 #endif
+

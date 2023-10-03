@@ -30,13 +30,12 @@ int main()
     std::filesystem::current_path(MAIN_PATH + TXT_PATH);
     std::string token = get_token();
     __save_pid();
+    bool tech_work = false;
 
-    std::locale russian_locale("ru_RU.UTF-8");
-
-    db_api::PsqlConnector conn("dialog2023", "gleb", "1957");
+    db_api::PsqlConnector conn("dialog2023", "gleb", "19572006gG");
 
     std::vector<int64_t> admin_list = get_admin_list();
-    std::vector<std::string> command_list = {"/help", "/help_readr" , "/help_addr"};
+    std::vector<std::string> command_list = {"/help", "/help_readr", "/help_addr"};
     // Log({ std::string { "Token for bot - " }, token }, "Start", "");
     TgBot::Bot bot(token);
 
@@ -99,19 +98,34 @@ int main()
         }
     });
 
-    bot.getEvents().onAnyMessage([&bot, &api, &users, &conn, russian_locale, admin_list, command_list](TgBot::Message::Ptr message) {
+    bot.getEvents().onCommand("drop_me", [&bot, &api, &users](TgBot::Message::Ptr message) {
+	int64_t u_id = crypt_id(message->from->id);
+	if (users.count(u_id) == 0) {
+		api.sendMessage(message->chat->id, "Ты и так в начальном состоянии!");
+
+	}
+	else {
+		User* current_user = &users[u_id];
+		current_user->DeleteUser();
+		users.erase(u_id);
+	}
+    });
+    bot.getEvents().onAnyMessage([&bot, &api, &users, &conn,admin_list, tech_work, command_list](TgBot::Message::Ptr message) {
         int64_t u_id = crypt_id(message->from->id);
         std::string input = message->text;
-        if (std::find(command_list.begin(), command_list.end(), input) != command_list.end()) {
+        if(tech_work) {
+	    api.sendMessage(message->chat->id, "Я на тех работах!");
+	    return;
+	}
+	if (std::find(command_list.begin(), command_list.end(), input) != command_list.end()) {
             return;
         }
         if (input.empty()) {
             api.sendMessage(message->chat->id, "Хей! А можно текстом? Хочу текстом!!!!!!!!");
             return;
         }
-
-        bool admin = (std::find(admin_list.begin(), admin_list.end(), decrypt_id(u_id)) != admin_list.end());
-
+        
+	bool admin = (std::find(admin_list.begin(), admin_list.end(), decrypt_id(u_id)) != admin_list.end());
         if (users.count(u_id) == 0) {
             User new_user(u_id, conn, admin);
             users.insert(std::make_pair(u_id, new_user));
@@ -120,11 +134,12 @@ int main()
         }
 
         input.erase(std::remove_if(input.begin(), input.end(), [](unsigned char c) {
-            return std::ispunct(c);
+            return c == '\"' || c == ';' || c == '\n';
         }),
             input.end());
 
         Log("Пользователь " + std::to_string(u_id) + " ввёл: " + message->text, "User");
+	Log("После обработки его сообщение: " + input, "User");
 
         TgBot::InlineKeyboardMarkup::Ptr keyboard(new TgBot::InlineKeyboardMarkup);
         User* current_user = &users[u_id];
@@ -148,7 +163,6 @@ int main()
                 }
             }
             int mark = std::stoi(input);
-
             if (mark < 1 || mark > 10) {
 
                 api.sendMessage(message->chat->id, "Ну что-то тут явно не так. Ты попробуй оценку дать от 1 до 10.");
@@ -156,13 +170,13 @@ int main()
             } else {
                 current_user->AddInput(input);
                 current_user->NextState();
-                api.sendMessage(message->chat->id, "Спасибо! Чтобы вы хотели изменить в мероприятии?");
+                api.sendMessage(message->chat->id, "Спасибо! Что бы вы хотели изменить в мероприятии?");
             }
         }
 
         else if (user_state.ends_with("_change")) {
             current_user->AddInput(input);
-            api.sendMessage(message->chat->id, "Интересно! Чтобы вы хотели похвалить в мероприятии?");
+            api.sendMessage(message->chat->id, "Интересно! Что бы вы хотели похвалить в мероприятии?");
             current_user->NextState();
         }
 
@@ -203,12 +217,16 @@ int main()
         }
     });
 
-    bot.getEvents().onCallbackQuery([&bot, &api, &conn, &users](TgBot::CallbackQuery::Ptr cb_query) {
+    bot.getEvents().onCallbackQuery([&bot, &api, &conn,tech_work, &users](TgBot::CallbackQuery::Ptr cb_query) {
         int64_t u_id = crypt_id(cb_query->from->id);
         if (users.count(u_id) == 0) {
             api.sendMessage(cb_query->message->chat->id, "Аха, кто-то пытается меня сломать! Ну уж нет! Оставляй отзыв, если ещё этого не сделал. Просто напиши что угодно, чтобы перейти в меню отзывов)");
             return;
         }
+	if (tech_work) {
+	   api.sendMessage(cb_query->message->chat->id, "Я на технических работах!");
+	   return;
+	}
 
         User* current_user = &users[u_id];
         TgBot::InlineKeyboardMarkup::Ptr keyboard(new TgBot::InlineKeyboardMarkup);
@@ -287,9 +305,24 @@ int main()
         api.deleteWebhook();
 
         TgBot::TgLongPoll longPoll(bot);
+	    bool need_sended = true;
+        bool need_to_send = false;
         while (true) {
-            Log("Lognpoll запущен.", "System");
+//Log("Lognpoll запущен.", "System");
             longPoll.start();
+	    std::vector<std::string> time = CurrentTime();
+	    std::string time_string = time[0] + ":" + time[1];
+	    Log("Cureent time: " + time_string, "test");
+	    if ((time_string == "19:15" || time_string == "22:1") && need_sended && need_to_send) {
+		    std::vector<int64_t> ids = conn.GetAllUsers();
+		    for (int64_t id: ids) {
+			api.sendMessage(decrypt_id(id), "Привет! Не забывай обо мне и оставляй отзывы!");
+		    }
+		    need_sended = false;
+	    }
+	    if (time_string == "19:16" || time_string == "22:2") {
+		    need_sended = true;
+	        }
         }
     } catch (std::exception& e) {
         Log(e.what(), "Error");
